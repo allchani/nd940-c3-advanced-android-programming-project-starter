@@ -20,10 +20,16 @@ class LoadingButton @JvmOverloads constructor(
     private var downloadButtonText = resources.getString(R.string.button_name)
 
 
+    // Color attirbutes
+    private var buttonColor = 0
+    private var textColor = 0
+    private var loadingCircleColor = 0
+    private var loadingRectColor = 0
+
     // painting
     private val paint = Paint().apply {
         style = Paint.Style.FILL
-        color = Color.GREEN
+        color = buttonColor
         textAlign = Paint.Align.CENTER
         textSize = resources.getDimension(R.dimen.default_text_size)
 
@@ -60,6 +66,20 @@ class LoadingButton @JvmOverloads constructor(
     }
 
     init {
+        context.theme.obtainStyledAttributes(
+            attrs,
+            R.styleable.LoadingButton,
+            0, 0).apply {
+
+            try {
+                buttonColor = getColor(R.styleable.LoadingButton_buttonColor, Color.GREEN)
+                textColor = getColor(R.styleable.LoadingButton_textColor, Color.RED)
+                loadingCircleColor = getColor(R.styleable.LoadingButton_loadingCircleColor, Color.YELLOW)
+                loadingRectColor = getColor(R.styleable.LoadingButton_loadingRectColor, Color.parseColor("#0055FF"))
+            } finally {
+                recycle()
+            }
+        }
 
     }
 
@@ -75,26 +95,26 @@ class LoadingButton @JvmOverloads constructor(
     }
 
     private fun showRecLoadingState(canvas: Canvas) {
-        paint.color = Color.parseColor("#0055FF")
+        paint.color = loadingRectColor
         downloadButtonText = resources.getString(R.string.button_loading)
         canvas.drawRect(0f,0f, widthSize*progress, heightSize.toFloat(),paint)
     }
 
     private fun showCircleLoadingState(canvas: Canvas) {
-        paint.color = Color.YELLOW
+        paint.color = loadingCircleColor
         canvas.drawArc(circle,0f,360f*progress,true,paint)
     }
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         canvas?.apply{
-            paint.color = Color.GREEN
+            paint.color = buttonColor
             drawRect(rect, paint)
             if (buttonState == ButtonState.Loading) {
                 showRecLoadingState(canvas)
                 showCircleLoadingState(canvas)
             }
-            paint.color = Color.RED
+            paint.color = textColor
             drawText(downloadButtonText,widthSize.toFloat() / 2,heightSize.toFloat() / 2 + textOffset, paint)
         }
 
